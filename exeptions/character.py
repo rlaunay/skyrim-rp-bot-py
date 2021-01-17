@@ -1,0 +1,2 @@
+class CharacterLimit(Exception):
+    pass

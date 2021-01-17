@@ -1,8 +1,9 @@
 import os
 
 from discord.ext import commands
+from mongoengine import connect
 
-from configs.config import BOT_SETTINGS
+from configs.config import BOT_SETTINGS, DB_URL
 
 # instanciation du bot
 bot = commands.Bot(command_prefix=BOT_SETTINGS['prefix'])
@@ -15,5 +16,7 @@ for dir in cogs_dirs:
         if os.path.isfile(os.path.join(f'cogs/{dir}', file)) and file.endswith('.py'):
             ext = file[:-3]
             bot.load_extension(f'cogs.{dir}.{ext}')
+
+connect('skyrim_rp', host=DB_URL)
 
 bot.run(BOT_SETTINGS['token'])
