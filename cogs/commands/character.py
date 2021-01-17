@@ -10,17 +10,12 @@ from utils.message import select_char, validation, character_embed
 class Character(Cog, name="Personnage"):
     def __init__(self, bot):
         self.bot = bot
-        self.emote = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣']
-        self.validation = ['✅', '❌']
 
     @Cog.listener()
     async def on_ready(self):
         print(f' - [Command] - [{self.qualified_name}] cog loaded')
 
-    @command(
-        aliases=['nc'],
-        usage="<user_mention> <character_name>"
-    )
+    @command(aliases=['nc'], usage="<user_mention> <character_name>")
     @has_permissions(administrator=True)
     async def new_character(self, ctx, member: Member, *, name):
         try:
@@ -29,30 +24,26 @@ class Character(Cog, name="Personnage"):
         except char_service.CharacterLimit:
             await ctx.send(f'{member.mention} à déjà 9 personnages de créer !')
 
-    @command(
-        aliases=['perso', 'char'],
-    )
+    @command(aliases=['perso', 'char'])
     async def character(self, ctx, member: Member = None):
         role_player = ctx.author if not member else member
 
         try:
-            char_selected = await select_char(self.bot, ctx, role_player, self.emote)
+            char_selected = await select_char(self.bot, ctx, role_player)
         except TimeoutError:
             return
 
         await ctx.send(embed=character_embed(role_player, char_selected))
 
-    @command(
-        aliases=['cs'],
-    )
+    @command(aliases=['cs'])
     @has_permissions(administrator=True)
     async def change_status(self, ctx, member: Member = None):
         role_player = ctx.author if not member else member
 
         try:
-            char_selected = await select_char(self.bot, ctx, role_player, self.emote)
-            txt = 'Voulez vous vraiment changer le statut de : `{}` le perso de <@{}> ?'
-            choice = await validation(self.bot, ctx, char_selected, self.validation, txt)
+            char_selected = await select_char(self.bot, ctx, role_player)
+            txt = f'Voulez vous vraiment changer le statut de : `{char_selected.name}` ?'
+            choice = await validation(self.bot, ctx, txt)
         except TimeoutError:
             return
 
@@ -62,17 +53,15 @@ class Character(Cog, name="Personnage"):
         else:
             await ctx.send(f'Changement de statut annuler')
 
-    @command(
-        aliases=['dc']
-    )
+    @command(aliases=['dc'])
     @has_permissions(administrator=True)
     async def del_character(self, ctx, member: Member = None):
         role_player = ctx.author if not member else member
 
         try:
-            char_selected = await select_char(self.bot, ctx, role_player, self.emote)
-            txt = 'Voulez vous vraiment supprimer: `{}` le perso de <@{}> ?'
-            choice = await validation(self.bot, ctx, char_selected, self.validation, txt)
+            char_selected = await select_char(self.bot, ctx, role_player)
+            txt = f'Voulez vous vraiment supprimer : `{char_selected.name}` ?'
+            choice = await validation(self.bot, ctx, txt)
         except TimeoutError:
             return
 

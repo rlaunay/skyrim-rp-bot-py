@@ -9,7 +9,7 @@ class Salary(EmbeddedDocument):
 class Character(Document):
     discord_id = IntField(required=True)
     name = StringField(required=True)
-    gold = IntField(required=True)
+    money = IntField(required=True)
     salary = EmbeddedDocumentField(Salary)
     inventory = ListField(StringField())
     status = StringField(default="Actif")

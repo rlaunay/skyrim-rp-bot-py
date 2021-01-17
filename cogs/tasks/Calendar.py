@@ -41,9 +41,9 @@ class Calendar(Cog):
         self.channel = self.bot.get_channel(BOT_SETTINGS['calendar_chan'])
         self.calendar.start()
         print(f' - [Tasks] - [{self.qualified_name}] cog loaded')
+        await self.update_channel()
 
-    @tasks.loop(hours=24)
-    async def calendar(self):
+    async def update_channel(self):
         """
         Met à jour le channel voulut avec la date de skyrim
         :return: void
@@ -55,6 +55,10 @@ class Calendar(Cog):
         await self.channel.edit(
             name=f'{self.skyrim_day[date.weekday()]} {date.day} {self.skyrim_month[date.month - 1]}')
         print('Calendar up to date')
+
+    @tasks.loop(hours=24)
+    async def calendar(self):
+        await self.update_channel()
 
     @calendar.before_loop
     async def before_calendar(self):
