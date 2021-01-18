@@ -1,4 +1,4 @@
-from mongoengine import *
+from mongoengine import EmbeddedDocument, IntField, Document, StringField, EmbeddedDocumentField, ListField
 
 
 class Salary(EmbeddedDocument):

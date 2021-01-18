@@ -1,7 +1,7 @@
 from asyncio import TimeoutError
 
 from discord import Member
-from discord.ext.commands import Cog, command, has_permissions
+from discord.ext.commands import Cog, command, has_permissions, group
 
 import services.character_service as char_service
 from utils.message import select_char, validation, character_embed
@@ -15,31 +15,37 @@ class Character(Cog, name="Personnage"):
     async def on_ready(self):
         print(f' - [Command] - [{self.qualified_name}] cog loaded')
 
-    @command(aliases=['nc'], usage="<user_mention> <character_name>")
-    @has_permissions(administrator=True)
-    async def new_character(self, ctx, member: Member, *, name):
-        try:
-            res = char_service.create(member.id, name)
-            await ctx.send(f'Le personnage {res["name"]} à été créer pour le joueur <@{res["discord_id"]}>')
-        except char_service.CharacterLimit:
-            await ctx.send(f'{member.mention} à déjà 9 personnages de créer !')
-
-    @command(aliases=['perso', 'char'])
+    @group(aliases=['perso', 'char'], invoke_without_command=True)
     async def character(self, ctx, member: Member = None):
         role_player = ctx.author if not member else member
-
         try:
             char_selected = await select_char(self.bot, ctx, role_player)
         except TimeoutError:
             return
-
         await ctx.send(embed=character_embed(role_player, char_selected))
 
-    @command(aliases=['cs'])
+    @character.command(aliases=['n'], usage="<user_mention> <character_name>")
     @has_permissions(administrator=True)
-    async def change_status(self, ctx, member: Member = None):
-        role_player = ctx.author if not member else member
+    async def new(self, ctx, member: Member, *, name):
+        try:
+            txt = f'Voulez vous vraiment créer le personnage `{name}` pour {member.mention} ?'
+            choice = await validation(self.bot, ctx, txt)
+        except TimeoutError:
+            return
 
+        if choice:
+            try:
+                res = char_service.create(member.id, name)
+                await ctx.send(f'Le personnage {res["name"]} à été créer pour le joueur <@{res["discord_id"]}>')
+            except char_service.CharacterLimit:
+                await ctx.send(f'{member.mention} à déjà 9 personnages de créer !')
+        else:
+            await ctx.send(f'Creation de personnage annuler')
+
+    @character.command(aliases=['s'])
+    @has_permissions(administrator=True)
+    async def status(self, ctx, member: Member = None):
+        role_player = ctx.author if not member else member
         try:
             char_selected = await select_char(self.bot, ctx, role_player)
             txt = f'Voulez vous vraiment changer le statut de : `{char_selected.name}` ?'
@@ -53,9 +59,9 @@ class Character(Cog, name="Personnage"):
         else:
             await ctx.send(f'Changement de statut annuler')
 
-    @command(aliases=['dc'])
+    @character.command(aliases=['d'])
     @has_permissions(administrator=True)
-    async def del_character(self, ctx, member: Member = None):
+    async def delete(self, ctx, member: Member = None):
         role_player = ctx.author if not member else member
 
         try:

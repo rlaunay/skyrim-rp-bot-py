@@ -11,7 +11,7 @@ def create(discord_id, name):
     chars = get_chars_by_user(discord_id)
     if len(chars) > 9:
         raise CharacterLimit
-    char = Character(discord_id=discord_id, name=name, gold=1000)
+    char = Character(discord_id=discord_id, name=name, money=1000)
     char.save()
     return {"name": char.name, "discord_id": char.discord_id}
 
